@@ -7,10 +7,10 @@
 8074839: Resolve disabled warnings for libunpack and the unpack200 binary
 Reviewed-by: dholmes, ksrini
 
-diff --git openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/bytes.h openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/bytes.h
+diff --git a/jdk/src/share/native/com/sun/java/util/jar/pack/bytes.h b/jdk/src/share/native/com/sun/java/util/jar/pack/bytes.h
 index bdaf95a2f6a..60c5b4f2a69 100644
---- openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/bytes.h
-+++ openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/bytes.h
+--- a/jdk/src/share/native/com/sun/java/util/jar/pack/bytes.h
++++ b/jdk/src/share/native/com/sun/java/util/jar/pack/bytes.h
 @@ -63,7 +63,7 @@ struct bytes {
      bytes res;
      res.ptr = ptr + beg;
@@ -20,10 +20,10 @@ index bdaf95a2f6a..60c5b4f2a69 100644
      return res;
    }
    // building C strings inside byte buffers:
-diff --git openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/jni.cpp openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/jni.cpp
+diff --git a/jdk/src/share/native/com/sun/java/util/jar/pack/jni.cpp b/jdk/src/share/native/com/sun/java/util/jar/pack/jni.cpp
 index 5fbc7261fb3..4c002e779d8 100644
---- openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/jni.cpp
-+++ openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/jni.cpp
+--- a/jdk/src/share/native/com/sun/java/util/jar/pack/jni.cpp
++++ b/jdk/src/share/native/com/sun/java/util/jar/pack/jni.cpp
 @@ -292,7 +292,7 @@ Java_com_sun_java_util_jar_pack_NativeUnpack_getUnusedInput(JNIEnv *env, jobject
  
    if (uPtr->aborting()) {
@@ -50,10 +50,10 @@ index 5fbc7261fb3..4c002e779d8 100644
    const char* prop  = env->GetStringUTFChars(pProp, JNI_FALSE);
    CHECK_EXCEPTION_RETURN_VALUE(prop, false);
    const char* value = env->GetStringUTFChars(pValue, JNI_FALSE);
-diff --git openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/main.cpp openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/main.cpp
+diff --git a/jdk/src/share/native/com/sun/java/util/jar/pack/main.cpp b/jdk/src/share/native/com/sun/java/util/jar/pack/main.cpp
 index 6fbc43a18ae..722c8baaff0 100644
---- openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/main.cpp
-+++ openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/main.cpp
+--- a/jdk/src/share/native/com/sun/java/util/jar/pack/main.cpp
++++ b/jdk/src/share/native/com/sun/java/util/jar/pack/main.cpp
 @@ -142,31 +142,28 @@ static const char* nbasename(const char* progname) {
    return progname;
  }
@@ -104,10 +104,10 @@ index 6fbc43a18ae..722c8baaff0 100644
    }
  }
  
-diff --git openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.cpp openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.cpp
-index 56f391b1e87..f0a25f8cd20 100644
---- openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.cpp
-+++ openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.cpp
+diff --git a/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.cpp b/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.cpp
+index a585535c513..8df3fade499 100644
+--- a/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.cpp
++++ b/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.cpp
 @@ -225,9 +225,9 @@ struct entry {
    }
  
@@ -120,7 +120,7 @@ index 56f391b1e87..f0a25f8cd20 100644
  #endif
  };
  
-@@ -718,13 +718,13 @@ void unpacker::read_file_header() {
+@@ -719,13 +719,13 @@ void unpacker::read_file_header() {
    // Now we can size the whole archive.
    // Read everything else into a mega-buffer.
    rp = hdr.rp;
@@ -138,7 +138,7 @@ index 56f391b1e87..f0a25f8cd20 100644
        abort("EOF reading fixed input buffer");
        return;
      }
-@@ -738,7 +738,7 @@ void unpacker::read_file_header() {
+@@ -739,7 +739,7 @@ void unpacker::read_file_header() {
        return;
      }
      input.set(U_NEW(byte, add_size(header_size_0, archive_size, C_SLOP)),
@@ -147,7 +147,7 @@ index 56f391b1e87..f0a25f8cd20 100644
      CHECK;
      assert(input.limit()[0] == 0);
      // Move all the bytes we read initially into the real buffer.
-@@ -961,13 +961,13 @@ void cpool::init(unpacker* u_, int counts[CONSTANT_Limit]) {
+@@ -962,13 +962,13 @@ void cpool::init(unpacker* u_, int counts[CONSTANT_Limit]) {
    nentries = next_entry;
  
    // place a limit on future CP growth:
@@ -163,18 +163,7 @@ index 56f391b1e87..f0a25f8cd20 100644
  
    // Note that this CP does not include "empty" entries
    // for longs and doubles.  Those are introduced when
-@@ -985,8 +985,9 @@ void cpool::init(unpacker* u_, int counts[CONSTANT_Limit]) {
-   }
- 
-   // Initialize *all* our entries once
--  for (int i = 0 ; i < maxentries ; i++)
-+  for (uint i = 0 ; i < maxentries ; i++) {
-     entries[i].outputIndex = REQUESTED_NONE;
-+  }
- 
-   initGroupIndexes();
-   // Initialize hashTab to a generous power-of-two size.
-@@ -3681,21 +3682,22 @@ void cpool::computeOutputIndexes() {
+@@ -3694,21 +3694,22 @@ void cpool::computeOutputIndexes() {
  
  unpacker* debug_u;
  
@@ -201,7 +190,7 @@ index 56f391b1e87..f0a25f8cd20 100644
    case CONSTANT_Signature:
      if (value.b.ptr == null)
        return ref(0)->string();
-@@ -3715,26 +3717,28 @@ char* entry::string() {
+@@ -3728,26 +3729,28 @@ char* entry::string() {
      break;
    default:
      if (nrefs == 0) {
@@ -239,10 +228,10 @@ index 56f391b1e87..f0a25f8cd20 100644
  }
  
  void print_cp_entries(int beg, int end) {
-diff --git openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.h openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.h
-index cec7a88b24e..ed5f3336a59 100644
---- openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.h
-+++ openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.h
+diff --git a/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.h b/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.h
+index 4ec595333c4..aad0c971ef2 100644
+--- a/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.h
++++ b/jdk/src/share/native/com/sun/java/util/jar/pack/unpack.h
 @@ -209,7 +209,7 @@ struct unpacker {
    byte*     rp;          // read pointer (< rplimit <= input.limit())
    byte*     rplimit;     // how much of the input block has been read?
@@ -252,10 +241,10 @@ index cec7a88b24e..ed5f3336a59 100644
  
    // callback to read at least one byte, up to available input
    typedef jlong (*read_input_fn_t)(unpacker* self, void* buf, jlong minlen, jlong maxlen);
-diff --git openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/utils.cpp openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/utils.cpp
-index e5197e1a3f1..40a10055ea5 100644
---- openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/utils.cpp
-+++ openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/utils.cpp
+diff --git a/jdk/src/share/native/com/sun/java/util/jar/pack/utils.cpp b/jdk/src/share/native/com/sun/java/util/jar/pack/utils.cpp
+index da39a589545..1281d8b25c8 100644
+--- a/jdk/src/share/native/com/sun/java/util/jar/pack/utils.cpp
++++ b/jdk/src/share/native/com/sun/java/util/jar/pack/utils.cpp
 @@ -81,7 +81,7 @@ void breakpoint() { }  // hook for debugger
  int assert_failed(const char* p) {
    char message[1<<12];
@@ -265,10 +254,10 @@ index e5197e1a3f1..40a10055ea5 100644
    breakpoint();
    unpack_abort(message);
    return 0;
-diff --git openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/zip.cpp openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/zip.cpp
+diff --git a/jdk/src/share/native/com/sun/java/util/jar/pack/zip.cpp b/jdk/src/share/native/com/sun/java/util/jar/pack/zip.cpp
 index f58c94956c0..343da3e183b 100644
---- openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/zip.cpp
-+++ openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/zip.cpp
+--- a/jdk/src/share/native/com/sun/java/util/jar/pack/zip.cpp
++++ b/jdk/src/share/native/com/sun/java/util/jar/pack/zip.cpp
 @@ -84,7 +84,7 @@ void jar::init(unpacker* u_) {
  }
  
@@ -293,10 +282,10 @@ index f58c94956c0..343da3e183b 100644
  
    PRINTCR((2, "writing zip comment\n"));
    // Write the comment.
-diff --git openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/zip.h openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/zip.h
+diff --git a/jdk/src/share/native/com/sun/java/util/jar/pack/zip.h b/jdk/src/share/native/com/sun/java/util/jar/pack/zip.h
 index 14ffc9d65bd..9877f6f68ca 100644
---- openjdk.orig/jdk/src/share/native/com/sun/java/util/jar/pack/zip.h
-+++ openjdk/jdk/src/share/native/com/sun/java/util/jar/pack/zip.h
+--- a/jdk/src/share/native/com/sun/java/util/jar/pack/zip.h
++++ b/jdk/src/share/native/com/sun/java/util/jar/pack/zip.h
 @@ -68,8 +68,8 @@ struct jar {
    }
  
