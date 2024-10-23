@@ -137,6 +137,9 @@
 %global gdb_arches %{jit_arches} %{zero_arches}
 # Set of architectures for which we have a portable build
 %global portable_build_arches %{aarch64} %{ix86} %{power64} x86_64
+# Architecture on which we run Java only tests
+# Temporarily include zero_arches until we can use a portable Zero build
+%global jdk_test_arch x86_64 %{zero_arches}
 
 # By default, we build a debug build during main build on JIT architectures
 %if %{with slowdebug}
@@ -305,8 +308,8 @@
 # Define version of OpenJDK 8 used
 %global project openjdk
 %global repo shenandoah-jdk8u
-%global openjdk_revision jdk8u402-b06
-%global shenandoah_revision shenandoah-%{openjdk_revision}
+%global openjdk_revision 8u432-b06
+%global shenandoah_revision shenandoah%{openjdk_revision}
 # Define IcedTea version used for SystemTap tapsets and desktop files
 %global icedteaver      3.15.0
 # Define current Git revision for the FIPS support patches
@@ -351,10 +354,12 @@
 %global updatever       %(VERSION=%{whole_update}; echo ${VERSION##*u})
 # eg jdk8u60-b27 -> b27
 %global buildver        %(VERSION=%{version_tag}; echo ${VERSION##*-})
+# rpmrelease numbering must start at 2 to be later than the 9.2 RPM
 %global rpmrelease      2
 # Settings used by the portable build
 %global portablerelease 1
-%global portablesuffix el9_2.ciqlts
+%global portablesuffix el9_2.92ciq_lts
+%global portabledir 92ciq_lts
 %global portablebuilddir /builddir/build/BUILD
 
 # Define milestone (EA for pre-releases, GA ("fcs") for releases)
@@ -1252,8 +1257,8 @@ Provides: jre%{?1} = %{epoch}:%{version}-%{release}
 Requires: ca-certificates
 # Require javapackages-filesystem for ownership of /usr/lib/jvm/ and macros
 Requires: javapackages-filesystem
-# 2022g required as of JDK-8297804
-Requires: tzdata-java >= 2022g
+# 2024a required as of JDK-8325150
+Requires: tzdata-java >= 2024a
 # for support of kernel stream control
 # libsctp.so.1 is being `dlopen`ed on demand
 Requires: lksctp-tools%{?_isa}
@@ -1389,17 +1394,14 @@ License: ASL 1.1 and ASL 2.0 and BSD and BSD with advertising and GPL+ and GPLv2
 URL: http://openjdk.java.net/
 
 # Shenandoah HotSpot
-# aarch64-port/jdk8u-shenandoah contains an integration forest of
-# OpenJDK 8u, the aarch64 port and Shenandoah
+# openjdk/shenandoah-jdk8u contains an integration forest of
+# OpenJDK 8u and the Shenandoah garbage collector
 # To regenerate, use:
 # VERSION=%%{shenandoah_revision}
-# FILE_NAME_ROOT=%%{project}-%%{repo}-${VERSION}
+# FILE_NAME_ROOT=${VERSION}
 # REPO_ROOT=<path to checked-out repository> generate_source_tarball.sh
 # where the source is obtained from http://github.com/%%{project}/%%{repo}
-Source0: %{project}-%{repo}-%{shenandoah_revision}.tar.xz
-
-# Release notes
-Source7: NEWS
+Source0: %{shenandoah_revision}.tar.xz
 
 # Use 'icedtea_sync.sh' to update the following
 # They are based on code contained in the IcedTea project (3.x).
@@ -1414,7 +1416,7 @@ Source10: policytool.desktop.in
 Source11: nss.cfg.in
 
 # Removed libraries that we link instead
-Source12: %{name}-remove-intree-libraries.sh
+Source12: remove-intree-libraries.sh
 
 # Ensure we aren't using the limited crypto policy
 Source13: TestCryptoLevel.java
@@ -1434,8 +1436,6 @@ Source17: nss.fips.cfg.in
 # Ensure translations are available for new timezones
 Source18: TestTranslations.java
 
-Source21: repackReproduciblePolycies.sh
-
 # New versions of config files with aarch64 support. This is not upstream yet.
 Source100: config.guess
 Source101: config.sub
@@ -1443,13 +1443,17 @@ Source101: config.sub
 # Include portable spec and instructions on how to rebuild
 Source19: README.md
 Source20: java-1.%{majorver}.0-openjdk-portable.specfile
+Source21: NEWS
+
+# Repack export policy JARs with reproducible timestamps
+Source22: repack_reproducible_policies.sh
 
 # Setup variables to reference correct sources
-%global releasezip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.unstripped.jdk.ciqlts.%{_arch}.tar.xz
-%global docszip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.docs.ciqlts.%{_arch}.tar.xz
-%global misczip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.misc.ciqlts.%{_arch}.tar.xz
-%global slowdebugzip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.slowdebug.jdk.ciqlts.%{_arch}.tar.xz
-%global fastdebugzip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.fastdebug.jdk.ciqlts.%{_arch}.tar.xz
+%global releasezip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.unstripped.jdk.%{portabledir}.%{_arch}.tar.xz
+%global docszip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.docs.%{portabledir}.%{_arch}.tar.xz
+%global misczip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.misc.%{portabledir}.%{_arch}.tar.xz
+%global slowdebugzip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.slowdebug.jdk.%{portabledir}.%{_arch}.tar.xz
+%global fastdebugzip %{_jvmdir}/%{name}-portable-%{version}-%{prelease}.portable.fastdebug.jdk.%{portabledir}.%{_arch}.tar.xz
 
 ############################################
 #
@@ -1460,12 +1464,15 @@ Source20: java-1.%{majorver}.0-openjdk-portable.specfile
 # either in their current form or at all.
 ############################################
 
+# Accessibility patches
+# Ignore AWTError when assistive technologies are loaded
+Patch1: rh1648242-accessible_toolkit_crash_do_not_break_jvm.patch
 # Turn on AssumeMP by default on RHEL systems
 Patch534: rh1648246-always_instruct_vm_to_assume_multiple_processors_are_available.patch
-# RH1582504: Use RSA as default for keytool, as DSA is disabled in all crypto policies except LEGACY
-Patch1003: rh1582504-rsa_default_for_keytool.patch
 # RH1648249: Add PKCS11 provider to java.security
 Patch1000: rh1648249-add_commented_out_nss_cfg_provider_to_java_security.patch
+# RH1582504: Use RSA as default for keytool, as DSA is disabled in all crypto policies except LEGACY
+Patch1003: rh1582504-rsa_default_for_keytool.patch
 
 # Crypto policy and FIPS support patches
 # Patch is generated from the fips tree at https://github.com/rh-openjdk/jdk8u/tree/fips
@@ -1511,13 +1518,10 @@ Patch528: pr3083-rh1346460-for_ssl_debug_return_null_instead_of_exception_when_t
 # Patch is generated from the cacerts tree at https://github.com/rh-openjdk/jdk8u/tree/cacerts
 # as follows: git diff fips > pr2888-rh2055274-support_system_cacerts-$(git show -s --format=%h HEAD).patch
 Patch539: pr2888-rh2055274-support_system_cacerts-%{cacertsver}.patch
-# enable build of speculative store bypass hardened alt-java
+# RH1684077, JDK-8009550: Depend on pcsc-lite-libs instead of pcsc-lite-devel as this is only in optional repo
+Patch541: rh1684077-openjdk_should_depend_on_pcsc-lite-libs_instead_of_pcsc-lite-devel.patch
+# RH1750419: Enable build of speculative store bypass hardened alt-java (CVE-2018-3639)
 Patch600: rh1750419-redhat_alt_java.patch
-# JDK-8218811: replace open by os::open in hotspot coding
-# This fixes a GCC 10 build issue
-Patch111: jdk8218811-perfMemory_linux.patch
-# JDK-8281098, PR3836: Extra compiler flags not passed to adlc build
-Patch112: jdk8281098-pr3836-pass_compiler_flags_to_adlc.patch
 
 #############################################
 #
@@ -1562,6 +1566,10 @@ Patch203: jdk8042159-allow_using_system_installed_lcms2-root.patch
 Patch204: jdk8042159-allow_using_system_installed_lcms2-jdk.patch
 # JDK-8257794: Zero: assert(istate->_stack_limit == istate->_thread->last_Java_sp() + 1) failed: wrong on Linux/x86_32
 Patch581: jdk8257794-remove_broken_assert.patch
+# JDK-8186464, RH1433262: ZipFile cannot read some InfoZip ZIP64 zip files
+Patch12: jdk8186464-rh1433262-zip64_failure.patch
+# JDK-8328999, RH2251025 - Update GIFlib to 5.2.2 (PR#571)
+Patch13: jdk8328999-update_giflib_5.2.2.patch
 
 #############################################
 #
@@ -1634,8 +1642,9 @@ BuildRequires: nss-devel
 BuildRequires: crypto-policies
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-proto-devel
-BuildRequires: zip
+BuildRequires: tar
 BuildRequires: unzip
+BuildRequires: zip
 # For definitions and macros like jvmdir
 BuildRequires: javapackages-filesystem
 %ifarch %{portable_build_arches}
@@ -1659,8 +1668,8 @@ BuildRequires: java-%{buildjdkver}-openjdk-devel >= 1.7.0.151-2.6.11.3
 BuildRequires: libffi
 BuildRequires: libffi-devel
 %endif
-# 2023c required as of JDK-8305113
-BuildRequires: tzdata-java >= 2023c
+# 2024a required as of JDK-8325150
+BuildRequires: tzdata-java >= 2024a
 # Earlier versions have a bug in tree vectorization on PPC
 BuildRequires: gcc >= 4.8.3-8
 
@@ -1673,17 +1682,18 @@ BuildRequires: giflib-devel
 BuildRequires: lcms2-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
+BuildRequires: zlib-devel
 %else
-# Version in jdk/src/share/native/java/util/zip/zlib/zlib.h
-Provides: bundled(zlib) = 1.2.13
 # Version in jdk/src/share/native/sun/awt/giflib/gif_lib.h
-Provides: bundled(giflib) = 5.2.1
+Provides: bundled(giflib) = 5.2.2
 # Version in jdk/src/share/native/sun/java2d/cmm/lcms/lcms2.h
-Provides: bundled(lcms2) = 2.10.0
+Provides: bundled(lcms2) = 2.11.0
 # Version in jdk/src/share/native/sun/awt/image/jpeg/jpeglib.h
 Provides: bundled(libjpeg) = 6b
 # Version in jdk/src/share/native/sun/awt/libpng/png.h
 Provides: bundled(libpng) = 1.6.39
+# Version in jdk/src/share/native/java/util/zip/zlib/zlib.h
+Provides: bundled(zlib) = 1.3.1
 %ifnarch %{portable_build_arches}
 # We link statically against libstdc++ to increase portability
 BuildRequires: libstdc++-static
@@ -1921,6 +1931,9 @@ fi
 echo "Update version: %{updatever}"
 echo "Build number: %{buildver}"
 echo "Milestone: %{milestone}"
+%ifnarch %{ix86}
+export XZ_OPT="-T0"
+%endif
 %setup -q -c -n %{uniquesuffix ""} -T -a 0
 # https://bugzilla.redhat.com/show_bug.cgi?id=1189084
 prioritylength=`expr length %{priority}`
@@ -1941,6 +1954,20 @@ cp %{SOURCE101} %{top_level_dir_name}/common/autoconf/build-aux/
 
 # OpenJDK patches
 
+# This syntax is deprecated:
+#    %patchN [...]
+# and should be replaced with:
+#    %patch -PN [...]
+# For example:
+#    %patch1001 -p1
+# becomes:
+#    %patch -P1001 -p1
+# The replacement format suggested by recent (circa Fedora 38) RPM
+# deprecation messages:
+#    %patch N [...]
+# is not backward-compatible with prior (circa RHEL-8) versions of
+# rpmbuild.
+
 %if %{system_libs}
 # Remove libraries that are linked
 sh %{SOURCE12}
@@ -1948,51 +1975,57 @@ sh %{SOURCE12}
 
 # System library fixes
 %if %{system_libs}
-%patch201
-%patch202
-%patch203
-%patch204
+%patch -P201
+%patch -P202
+%patch -P203
+%patch -P204
 %endif
 
-%patch5
+%patch -P1
+%patch -P5
 
 # s390 build fixes
-%patch102
-%patch103
-%patch107
+%patch -P102
+%patch -P103
+%patch -P107
 
 # AArch64 fixes
 
 # x86 fixes
-%patch105
+pushd %{top_level_dir_name}
+%patch -P105 -p1
+popd
 
 # Upstreamable fixes
-%patch502
-%patch512
-%patch523
-%patch528
-%patch571
-%patch574
-%patch111
-%patch112
-%patch581
+%patch -P512
+%patch -P523
+%patch -P528
+%patch -P571
+%patch -P574
+%patch -P581
+%patch -P541
+%patch -P12
+pushd %{top_level_dir_name}
+%patch -P502 -p1
+%patch -P13 -p1
+popd
 
 pushd %{top_level_dir_name}
 # Add crypto policy and FIPS support
-%patch1001 -p1
+%patch -P1001 -p1
 # nss.cfg PKCS11 support; must come last as it also alters java.security
-%patch1000 -p1
+%patch -P1000 -p1
 # cacerts patch; must follow FIPS patch as it also alters java.security
-%patch539 -p1
+%patch -P539 -p1
 popd
 
 # RPM-only fixes
-%patch600
-%patch1003
+%patch -P600
+%patch -P1003
 
 # RHEL-only patches
 %if ! 0%{?fedora} && 0%{?rhel} <= 7
-%patch534
+%patch -P534
 %endif
 
 # Shenandoah patches
@@ -2369,22 +2402,53 @@ export JAVA_HOME=$(pwd)/%{installoutputdir -- $suffix}
 export JAVA_HOME=$(pwd)/%{installoutputdir -- $suffix}/images/%{jdkimage}
 %endif
 
-# Check unlimited policy has been used
-$JAVA_HOME/bin/javac -d . %{SOURCE13}
-$JAVA_HOME/bin/java TestCryptoLevel
+# Only test on one architecture (the fastest) for Java only tests
+%ifarch %{jdk_test_arch}
 
-# Check ECC is working
-$JAVA_HOME/bin/javac -d . %{SOURCE14}
-$JAVA_HOME/bin/java $(echo $(basename %{SOURCE14})|sed "s|\.java||")
+  # Check unlimited policy has been used
+  $JAVA_HOME/bin/javac -d . %{SOURCE13}
+  $JAVA_HOME/bin/java TestCryptoLevel
 
-# Check system crypto (policy) is active and can be disabled
-# Test takes a single argument - true or false - to state whether system
-# security properties are enabled or not.
-$JAVA_HOME/bin/javac -d . %{SOURCE15}
-export PROG=$(echo $(basename %{SOURCE15})|sed "s|\.java||")
-export SEC_DEBUG="-Djava.security.debug=properties"
-$JAVA_HOME/bin/java ${SEC_DEBUG} ${PROG} true
-$JAVA_HOME/bin/java ${SEC_DEBUG} -Djava.security.disableSystemPropertiesFile=true ${PROG} false
+  # Check ECC is working
+  $JAVA_HOME/bin/javac -d . %{SOURCE14}
+  $JAVA_HOME/bin/java $(echo $(basename %{SOURCE14})|sed "s|\.java||")
+
+  # Check system crypto (policy) is active and can be disabled
+  # Test takes a single argument - true or false - to state whether system
+  # security properties are enabled or not.
+  $JAVA_HOME/bin/javac -d . %{SOURCE15}
+  export PROG=$(echo $(basename %{SOURCE15})|sed "s|\.java||")
+  export SEC_DEBUG="-Djava.security.debug=properties"
+  $JAVA_HOME/bin/java ${SEC_DEBUG} ${PROG} true
+  $JAVA_HOME/bin/java ${SEC_DEBUG} -Djava.security.disableSystemPropertiesFile=true ${PROG} false
+
+  # Check correct vendor values have been set
+  $JAVA_HOME/bin/javac -d . %{SOURCE16}
+  $JAVA_HOME/bin/java $(echo $(basename %{SOURCE16})|sed "s|\.java||") "%{oj_vendor}" %{oj_vendor_url} %{oj_vendor_bug_url}
+
+  # Check translations are available for new timezones
+  $JAVA_HOME/bin/javac -d . %{SOURCE18}
+  $JAVA_HOME/bin/java $(echo $(basename %{SOURCE18})|sed "s|\.java||") JRE
+
+  # Check src.zip has all sources. See RHBZ#1130490
+  unzip -l $JAVA_HOME/src.zip | grep 'sun.misc.Unsafe'
+
+  # Check class files include useful debugging information
+  $JAVA_HOME/bin/javap -l java.lang.Object | grep "Compiled from"
+  $JAVA_HOME/bin/javap -l java.lang.Object | grep LineNumberTable
+  $JAVA_HOME/bin/javap -l java.lang.Object | grep LocalVariableTable
+
+  # Check generated class files include useful debugging information
+  $JAVA_HOME/bin/javap -l java.nio.ByteBuffer | grep "Compiled from"
+  $JAVA_HOME/bin/javap -l java.nio.ByteBuffer | grep LineNumberTable
+  $JAVA_HOME/bin/javap -l java.nio.ByteBuffer | grep LocalVariableTable
+
+%else
+
+  # Just run a basic java -version test on other architectures
+  $JAVA_HOME/bin/java -version
+
+%endif
 
 # Check java launcher has no SSB mitigation
 if ! nm $JAVA_HOME/bin/java | grep set_speculation ; then true ; else false; fi
@@ -2395,14 +2459,6 @@ nm $JAVA_HOME/bin/%{alt_java_name} | grep set_speculation
 %else
 if ! nm $JAVA_HOME/bin/%{alt_java_name} | grep set_speculation ; then true ; else false; fi
 %endif
-
-# Check correct vendor values have been set
-$JAVA_HOME/bin/javac -d . %{SOURCE16}
-$JAVA_HOME/bin/java $(echo $(basename %{SOURCE16})|sed "s|\.java||") "%{oj_vendor}" %{oj_vendor_url} %{oj_vendor_bug_url}
-
-# Check translations are available for new timezones
-$JAVA_HOME/bin/javac -d . %{SOURCE18}
-$JAVA_HOME/bin/java $(echo $(basename %{SOURCE18})|sed "s|\.java||") JRE
 
 # Check debug symbols are present and can identify code
 find "$JAVA_HOME" -iname '*.so' -print0 | while read -d $'\0' lib
@@ -2470,19 +2526,6 @@ EOF
 grep 'JavaCallWrapper::JavaCallWrapper' gdb.out
 %endif
 
-# Check src.zip has all sources. See RHBZ#1130490
-unzip -l $JAVA_HOME/src.zip | grep 'sun.misc.Unsafe'
-
-# Check class files include useful debugging information
-$JAVA_HOME/bin/javap -l java.lang.Object | grep "Compiled from"
-$JAVA_HOME/bin/javap -l java.lang.Object | grep LineNumberTable
-$JAVA_HOME/bin/javap -l java.lang.Object | grep LocalVariableTable
-
-# Check generated class files include useful debugging information
-$JAVA_HOME/bin/javap -l java.nio.ByteBuffer | grep "Compiled from"
-$JAVA_HOME/bin/javap -l java.nio.ByteBuffer | grep LineNumberTable
-$JAVA_HOME/bin/javap -l java.nio.ByteBuffer | grep LocalVariableTable
-
 # build cycles check
 done
 
@@ -2508,7 +2551,7 @@ for suffix in %{build_loop} ; do
 %ifarch %{portable_build_arches}
   mv ${jdk_image}/NEWS ${commondocdir}
 %else
-  cp -a %{SOURCE7} ${commondocdir}
+  cp -a %{SOURCE21} ${commondocdir}
 %endif
   cp -a %{SOURCE19} %{SOURCE20} ${commondocdir}
 
@@ -2631,7 +2674,7 @@ find $RPM_BUILD_ROOT%{_jvmdir}/%{sdkdir -- $suffix}/demo \
   | sed 's|^|%dir |' \
   >> %{name}-demo.files"$suffix"
 
-bash %{SOURCE21} $RPM_BUILD_ROOT/%{_jvmdir}/%{jredir -- $suffix} %{javaver}
+bash %{SOURCE22} $RPM_BUILD_ROOT/%{_jvmdir}/%{jredir -- $suffix} %{javaver}
 # https://bugzilla.redhat.com/show_bug.cgi?id=1183793
 touch -t 201401010000 $RPM_BUILD_ROOT/%{_jvmdir}/%{jredir -- $suffix}/lib/security/java.security
 
@@ -2873,11 +2916,134 @@ cjc.mainProgram(args)
 %endif
 
 %changelog
-* Fri Jan 19 2024 Matthew Hink <mhink@ciq.com> - 1.8.0.402.b06-2
-- Set portablerelease/portableversion variables to match LTS
+* Mon Oct 21 2024 Jonathan Dieter <jdieter@ciq.com> - 1.8.0.432.b06-2.el9_2
+- Fix build for 9.2 LTS
 
-* Wed Jan 17 2024 Release Engineering <releng@rockylinux.org> - 1.8.0.402.b06-2
+* Wed Oct 16 2024 Release Engineering <releng@rockylinux.org> - 1.8.0.432.b06-2
 - Build for Rocky Linux %{rocky} using our own portable
+
+* Fri Oct 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.432.b06-1
+- Update to shenandoah-jdk8u432-b06 (GA)
+- Update release notes for shenandoah-8u432-b06.
+- Drop JDK-828109{6,7,8}/PR3836 patch following integration of upstream version
+- Regenerate JDK-8199936/PR3533 patch following JDK-828109{6,7,8} integration
+- Bump version of bundled zlib to 1.3.1 following JDK-8324632
+- Include backport of JDK-8328999 to update giflib to 5.2.2
+- Bump version of bundled giflib to 5.2.2 following JDK-8328999
+- Add build scripts to repository to ease remembering all CentOS & RHEL targets and options
+- Sync the copy of the portable specfile with the latest update
+- Resolves: RHEL-58794
+- Resolves: RHEL-62280
+- Resolves: RHEL-61287
+- ** This tarball is embargoed until 2024-10-15 @ 1pm PT. **
+
+* Wed Jul 10 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b05-1
+- Update to shenandoah-jdk8u422-b05 (GA)
+- Update release notes for shenandoah-8u422-b05.
+- Rebase PR2462 patch following patched hunk being removed by JDK-8322106
+- Switch to GA mode.
+- Sync the copy of the portable specfile with the latest update
+- Actually require tzdata 2024a now it is available in the buildroot
+- Add missing build dependencies on zlib-devel and tar
+- Update LCMS version to match JDK-8245400
+- ** This tarball is embargoed until 2024-07-16 @ 1pm PT. **
+- Resolves: RHEL-46860
+- Resolves: RHEL-47011
+
+* Tue Jul 09 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.422.b01-0.1.ea
+- Update to shenandoah-jdk8u422-b01 (EA)
+- Update release notes for shenandoah-8u422-b01.
+- Switch to EA mode.
+- Sync the copy of the portable specfile with the latest update
+- Update NEWS file and rename remove-intree-libraries.sh so portable can be rebuilt
+- Document policy repacking script and rename to correct spelling and style
+- Limit Java only tests to one architecture using jdk_test_arch
+- Temporarily include Zero-based architectures in jdk_test_arch until they are portable
+- Related: RHEL-46860
+- Resolves: RHEL-47069
+- Resolves: RHEL-47090
+
+* Mon Apr 08 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b08-2
+- Update to shenandoah-jdk8u412-b08 (GA)
+- Update release notes for shenandoah-8u412-b08.
+- Complete release note for Certainly roots
+- Switch to GA mode.
+- Sync the copy of the portable specfile with the latest update
+- ** This tarball is embargoed until 2024-04-16 @ 1pm PT. **
+- Resolves: RHEL-32409
+
+* Fri Apr 05 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b07-0.2.ea
+- Update to shenandoah-jdk8u412-b07 (EA)
+- Require tzdata 2024a due to upstream inclusion of JDK-8322725
+- Only require tzdata 2023d for now as 2024a is unavailable in buildroot
+- Sync the copy of the portable specfile with the latest update
+- Related: RHEL-30934
+
+* Fri Mar 22 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b01-0.2.ea
+- Turn off xz multi-threading on i686 as it fails with an out of memory error
+- Move to upstream tag style (shenandoah8ux-by) in preparation for eventually moving back to official sources
+- generate_source_tarball.sh: Rename JCONSOLE_JS_PATCH{,_DEFAULT} to JCONSOLE_PATCH{,_DEFAULT} for brevity
+- generate_source_tarball.sh: Adapt OPENJDK_LATEST logic to work with 8u Shenandoah fork
+- generate_source_tarball.sh: Adapt version logic to work with 8u
+- generate_source_tarball.sh: Add quoting for SCRIPT_DIR and JCONSOLE_PATCH (SC2086)
+- generate_source_tarball.sh: Update examples in header for clarity
+- generate_source_tarball.sh: Create directory in TMPDIR when using WITH_TEMP
+- generate_source_tarball.sh: Only add --depth=1 on non-local repositories
+- Move maintenance scripts to a scripts subdirectory
+- icedtea_sync.sh: Update with a VCS mode that retrieves sources from a Mercurial repository
+- discover_trees.sh: Set compile-command and indentation instructions for Emacs
+- discover_trees.sh: shellcheck: Do not use -o (SC2166)
+- discover_trees.sh: shellcheck: Remove x-prefixes since we use Bash (SC2268)
+- discover_trees.sh: shellcheck: Double-quote variable references (SC2086)
+- generate_source_tarball.sh: Add authorship
+- icedtea_sync.sh: Set compile-command and indentation instructions for Emacs
+- icedtea_sync.sh: shellcheck: Double-quote variable references (SC2086)
+- icedtea_sync.sh: shellcheck: Remove x-prefixes since we use Bash (SC2268)
+- openjdk_news.sh: Set compile-command and indentation instructions for Emacs
+- openjdk_news.sh: shellcheck: Double-quote variable references (SC2086)
+- openjdk_news.sh: shellcheck: Remove x-prefixes since we use Bash (SC2268)
+- openjdk_news.sh: shellcheck: Remove deprecated egrep usage (SC2196)
+- Remove obsolete file generate_singlerepo_source_tarball.sh
+- Remove obsolete file get_sources.sh
+- Remove obsolete file update_main_sources.sh
+- generate_source_tarball.sh: Handle an existing checkout
+- generate_source_tarball.sh: Sync indentation with java-21-openjdk version
+- generate_source_tarball.sh: Support using a subdirectory via TO_COMPRESS
+- Sync patch set with portable build
+- Related: RHEL-30934
+
+* Fri Mar 22 2024 Thomas Fitzsimmons <fitzsim@redhat.com> - 1:1.8.0.412.b01-0.2.ea
+- Invoke xz in multi-threaded mode
+- generate_source_tarball.sh: Add WITH_TEMP environment variable
+- generate_source_tarball.sh: Multithread xz on all available cores
+- generate_source_tarball.sh: Add OPENJDK_LATEST environment variable
+- generate_source_tarball.sh: Update comment about tarball naming
+- generate_source_tarball.sh: Reformat comment header
+- generate_source_tarball.sh: Reformat and update help output
+- generate_source_tarball.sh: Do a shallow clone, for speed
+- generate_source_tarball.sh: Eliminate some removal prompting
+- generate_source_tarball.sh: Make tarball reproducible
+- generate_source_tarball.sh: Prefix temporary directory with temp-
+- generate_source_tarball.sh: Remove temporary directory exit conditions
+- generate_source_tarball.sh: Set compile-command in Emacs
+- generate_source_tarball.sh: Remove REPO_NAME from FILE_NAME_ROOT
+- generate_source_tarball.sh: Move PROJECT_NAME and REPO_NAME checks
+- generate_source_tarball.sh: shellcheck: Remove x-prefixes since we use Bash (SC2268)
+- generate_source_tarball.sh: shellcheck: Double-quote variable references (SC2086)
+- generate_source_tarball.sh: shellcheck: Do not use -a (SC2166)
+- generate_source_tarball.sh: shellcheck: Do not use $ on arithmetic variables (SC2004)
+- Use backward-compatible patch syntax
+- generate_source_tarball.sh: Ignore -ga tags with OPENJDK_LATEST
+- generate_source_tarball.sh: Remove trailing period in echo
+- generate_source_tarball.sh: Use long-style argument to grep
+- generate_source_tarball.sh: Add license
+- generate_source_tarball.sh: Add indentation instructions for Emacs
+- Related: RHEL-30934
+
+* Thu Mar 21 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.412.b01-0.2.ea
+- Update to shenandoah-jdk8u412-b01 (EA)
+- Switch to EA mode.
+- Related: RHEL-30934
 
 * Thu Jan 11 2024 Andrew Hughes <gnu.andrew@redhat.com> - 1:1.8.0.402.b06-0.2.ea
 - Update to shenandoah-jdk8u402-b06 (GA)

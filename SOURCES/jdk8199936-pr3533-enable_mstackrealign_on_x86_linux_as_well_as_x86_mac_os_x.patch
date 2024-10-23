@@ -7,10 +7,11 @@
 PR3533: HotSpot generates code with unaligned stack, crashes on SSE operations
 Summary: Enable -mstackrealign on x86 Linux as well as x86 Mac OS X
 
-diff --git openjdk.orig///common/autoconf/flags.m4 openjdk///common/autoconf/flags.m4
---- openjdk.orig///common/autoconf/flags.m4
-+++ openjdk///common/autoconf/flags.m4
-@@ -402,6 +402,21 @@
+diff --git a/common/autoconf/flags.m4 b/common/autoconf/flags.m4
+index 113bf367e2..bed030e8d1 100644
+--- a/common/autoconf/flags.m4
++++ b/common/autoconf/flags.m4
+@@ -451,6 +451,21 @@ AC_DEFUN_ONCE([FLAGS_SETUP_COMPILER_FLAGS_FOR_JDK],
      AC_SUBST($2CXXSTD_CXXFLAG)
    fi
  
@@ -32,23 +33,32 @@ diff --git openjdk.orig///common/autoconf/flags.m4 openjdk///common/autoconf/fla
    if test "x$CFLAGS" != "x${ADDED_CFLAGS}"; then
      AC_MSG_WARN([Ignoring CFLAGS($CFLAGS) found in environment. Use --with-extra-cflags])
    fi
-diff --git openjdk.orig///common/autoconf/hotspot-spec.gmk.in openjdk///common/autoconf/hotspot-spec.gmk.in
---- openjdk.orig///common/autoconf/hotspot-spec.gmk.in
-+++ openjdk///common/autoconf/hotspot-spec.gmk.in
-@@ -112,7 +112,8 @@
- RC:=@HOTSPOT_RC@
- 
- EXTRA_CFLAGS=@LEGACY_EXTRA_CFLAGS@ $(NO_DELETE_NULL_POINTER_CHECKS_CFLAG) \
--				   $(NO_LIFETIME_DSE_CFLAG) $(CXXSTD_CXXFLAG)
-+				   $(NO_LIFETIME_DSE_CFLAG) $(CXXSTD_CXXFLAG) \
-+				   $(REALIGN_CFLAG)
- EXTRA_CXXFLAGS=@LEGACY_EXTRA_CXXFLAGS@
- EXTRA_LDFLAGS=@LEGACY_EXTRA_LDFLAGS@
- EXTRA_ASFLAGS=@LEGACY_EXTRA_ASFLAGS@
-diff --git openjdk.orig///common/autoconf/spec.gmk.in openjdk///common/autoconf/spec.gmk.in
---- openjdk.orig///common/autoconf/spec.gmk.in
-+++ openjdk///common/autoconf/spec.gmk.in
-@@ -366,6 +366,7 @@
+diff --git a/common/autoconf/hotspot-spec.gmk.in b/common/autoconf/hotspot-spec.gmk.in
+index 3f86751d2b..f8a271383f 100644
+--- a/common/autoconf/hotspot-spec.gmk.in
++++ b/common/autoconf/hotspot-spec.gmk.in
+@@ -114,13 +114,14 @@ RC:=@HOTSPOT_RC@
+ # Retain EXTRA_{CFLAGS,CXXFLAGS,LDFLAGS,ASFLAGS} for the target flags to
+ # maintain compatibility with the existing Makefiles
+ EXTRA_CFLAGS=@LEGACY_TARGET_CFLAGS@ $(NO_DELETE_NULL_POINTER_CHECKS_CFLAG) \
+-				    $(NO_LIFETIME_DSE_CFLAG) $(CXXSTD_CXXFLAG)
++                                   $(NO_LIFETIME_DSE_CFLAG) $(CXXSTD_CXXFLAG) \
++                                   $(REALIGN_CFLAG)
+ EXTRA_CXXFLAGS=@LEGACY_TARGET_CXXFLAGS@
+ EXTRA_LDFLAGS=@LEGACY_TARGET_LDFLAGS@
+ EXTRA_ASFLAGS=@LEGACY_TARGET_ASFLAGS@
+ # Define an equivalent set for the host flags (i.e. without sysroot options)
+ HOST_CFLAGS=@LEGACY_HOST_CFLAGS@ $(NO_DELETE_NULL_POINTER_CHECKS_CFLAG) \
+-				 $(NO_LIFETIME_DSE_CFLAG) $(CXXSTD_CXXFLAG)
++                                 $(NO_LIFETIME_DSE_CFLAG) $(CXXSTD_CXXFLAG)
+ HOST_CXXFLAGS=@LEGACY_HOST_CXXFLAGS@
+ HOST_LDFLAGS=@LEGACY_HOST_LDFLAGS@
+ HOST_ASFLAGS=@LEGACY_HOST_ASFLAGS@
+diff --git a/common/autoconf/spec.gmk.in b/common/autoconf/spec.gmk.in
+index 9573bb2cbd..fe7efc130c 100644
+--- a/common/autoconf/spec.gmk.in
++++ b/common/autoconf/spec.gmk.in
+@@ -366,6 +366,7 @@ CXXFLAGS_JDKEXE:=@CXXFLAGS_JDKEXE@
  
  NO_DELETE_NULL_POINTER_CHECKS_CFLAG=@NO_DELETE_NULL_POINTER_CHECKS_CFLAG@
  NO_LIFETIME_DSE_CFLAG=@NO_LIFETIME_DSE_CFLAG@

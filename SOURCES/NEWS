@@ -3,6 +3,499 @@ Key:
 JDK-X  - https://bugs.openjdk.java.net/browse/JDK-X
 CVE-XXXX-YYYY: https://cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
 
+New in release OpenJDK 8u432 (2024-10-15):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u432
+
+* CVEs
+  - CVE-2024-21208
+  - CVE-2024-21210
+  - CVE-2024-21217
+  - CVE-2024-21235
+* Security fixes
+  - JDK-8290367, JDK-8332643: Update default value and extend the scope of com.sun.jndi.ldap.object.trustSerialData system property
+  - JDK-8313626, JDK-8307769: C2 crash due to unexpected exception control flow
+  - JDK-8328286: Enhance HTTP client
+  - JDK-8328544: Improve handling of vectorization
+  - JDK-8328726: Better Kerberos support
+  - JDK-8331446: Improve deserialization support
+  - JDK-8332644: Improve graph optimizations
+  - JDK-8335713: Enhance vectorization analysis
+* Other changes
+  - JDK-4660158: TTY: NumberFormatException while trying to set values by 'set' command
+  - JDK-6544871: java/awt/event/KeyEvent/KeyTyped/CtrlASCII.html fails from jdk b09 on windows.
+  - JDK-7188098: TEST_BUG: closed/javax/sound/midi/Synthesizer/Receiver/bug6186488.java fails
+  - JDK-8021775: compiler/8009761/Test8009761.java  "Failed: init recursive calls: 51. After deopt 50"
+  - JDK-8030204: com/sun/jdi/JdbExprTest.sh: Required output "Can\\'t convert 2147483648 to int" not found
+  - JDK-8030795: java/nio/file/Files/probeContentType/ForceLoad.java failing with ServiceConfigurationError without jtreg -agentvm option
+  - JDK-8035395: sun/management/jmxremote/startstop/JMXStartStopTest.java fails intermittently: Port already in use
+  - JDK-8075511: Enable -Woverloaded-virtual C++ warning for HotSpot build
+  - JDK-8137329: [windows] Build broken on VS2010 after  "8046148: JEP 158: Unified JVM Logging"
+  - JDK-8145919: sun/management/jmxremote/bootstrap/RmiSslBootstrapTest failed with Connection failed for no credentials
+  - JDK-8152207: Perform array bound checks while getting a length of bytecode instructions
+  - JDK-8193682: Infinite loop in ZipOutputStream.close()
+  - JDK-8196770: Add JNDI test com/sun/jndi/ldap/blits/AddTests/AddNewEntry.java
+  - JDK-8221903: PIT: javax/swing/RepaintManager/IconifyTest/IconifyTest.java fails on ubuntu18.04
+  - JDK-8233364: Fix undefined behavior in Canonicalizer::do_ShiftOp
+  - JDK-8238274: (sctp) JDK-7118373 is not fixed for SctpChannel
+  - JDK-8251188: Update LDAP tests not to use wildcard addresses
+  - JDK-8264328: Broken license in javax/swing/JComboBox/8072767/bug8072767.java
+  - JDK-8266248: Compilation failure in PLATFORM_API_MacOSX_MidiUtils.c with Xcode 12.5
+  - JDK-8278794: Infinite loop in DeflaterOutputStream.finish()
+  - JDK-8279164: Disable TLS_ECDH_* cipher suites
+  - JDK-8281096: Flags introduced by configure script are not passed to ADLC build
+  - JDK-8284771: java/util/zip/CloseInflaterDeflaterTest.java failed with "AssertionError: Expected IOException to be thrown, but nothing was thrown"
+  - JDK-8298887: On the latest macOS+XCode the Robot API may report wrong colors
+  - JDK-8299677: Formatter.format might take a long time to format an integer or floating-point
+  - JDK-8305400: ISO 4217 Amendment 175 Update
+  - JDK-8305931: jdk/jfr/jcmd/TestJcmdDumpPathToGCRoots.java failed with "Expected chains but found none"
+  - JDK-8307779: Relax the java.awt.Robot specification
+  - JDK-8309138: Fix container tests for jdks with symlinked conf dir
+  - JDK-8311666: Disabled tests in test/jdk/sun/java2d/marlin
+  - JDK-8315117: Update Zlib Data Compression Library to Version 1.3
+  - JDK-8315863: [GHA] Update checkout action to use v4
+  - JDK-8316328: Test jdk/jfr/event/oldobject/TestSanityDefault.java times out for some heap sizes
+  - JDK-8318039: GHA: Bump macOS and Xcode versions
+  - JDK-8318951: Additional negative value check in JPEG decoding
+  - JDK-8320964: sun/tools/native2ascii/Native2AsciiTests.sh fails on Japanese
+  - JDK-8321480: ISO 4217 Amendment 176 Update
+  - JDK-8324632: Update Zlib Data Compression Library to Version 1.3.1
+  - JDK-8324723: GHA: Upgrade some actions to avoid deprecated Node 16
+  - JDK-8326351: Update the Zlib version in open/src/java.base/share/legal/zlib.md to 1.3.1
+  - JDK-8326521: JFR: CompilerPhase event test fails on windows 32 bit
+  - JDK-8326529: JFR: Test for CompilerCompile events fails due to time out
+  - JDK-8327007: javax/swing/JSpinner/8008657/bug8008657.java fails
+  - JDK-8330415: Update system property for Java SE specification maintenance version
+  - JDK-8331730: [8u] GHA: update sysroot for cross builds to Debian bullseye
+  - JDK-8333126: Bump update version of OpenJDK: 8u432
+  - JDK-8333669: [8u] GHA: Dead VS2010 download link
+  - JDK-8333724: Problem list security/infra/java/security/cert/CertPathValidator/certification/CAInterop.java#teliasonerarootcav1
+  - JDK-8334653: ISO 4217 Amendment 177 Update
+  - JDK-8334905: [8u] The test java/awt/Mixing/AWT_Mixing/JButtonOverlapping.java started to fail after 8159690
+  - JDK-8335851: [8u] Test JMXStartStopTest.java fails after JDK-8334415
+  - JDK-8335894: [8u] Fix SupplementalJapaneseEraTest.java for jdks with symlinked conf dir
+  - JDK-8336928: GHA: Bundle artifacts removal broken
+  - JDK-8337110: [8u] TestNoEagerReclaimOfHumongousRegions.java should be in gc/g1 directory
+  - JDK-8337312: [8u] Windows x86 VS2010 build broken by JDK-8320097
+  - JDK-8337664: Distrust TLS server certificates issued after Oct 2024 and anchored by Entrust Root CAs
+  - JDK-8338144: [8u] Remove duplicate license files
+  - JDK-8341057: Add 2 SSL.com TLS roots
+  - JDK-8341059: Change Entrust TLS distrust date to November 12, 2024
+
+Notes on individual issues:
+===========================
+
+security-libs/javax.net.ssl:
+
+JDK-8279164: Disable TLS_ECDH_* cipher suites
+=============================================
+The TLS_ECDH cipher suites do not preserve forward secrecy and are
+rarely used in practice. With this release, they are disabled by
+adding "ECDH" to the `jdk.tls.disabledAlgorithms` security property in
+the `java.security` configuration file. Attempts to use these suites
+with this release will result in a `SSLHandshakeException` being
+thrown. Note that ECDH cipher suites which use RC4 were already
+disabled prior to this change.
+
+Users can, *at their own risk*, remove this restriction by modifying
+the `java.security` configuration file (or override it by using the
+`java.security.properties` system property) so "ECDH" is no longer
+listed in the `jdk.tls.disabledAlgorithms` security property.
+
+This change has no effect on TLS_ECDHE cipher suites, which remain
+enabled by default.
+
+JDK-8337664: Distrust TLS server certificates issued after Oct 2024 and anchored by Entrust Root CAs
+JDK-8341059: Change Entrust TLS distrust date to November 12, 2024
+====================================================================================================
+In accordance with similar plans recently announced by Google and
+Mozilla, the JDK will not trust Transport Layer Security (TLS)
+certificates issued after the 11th of November 2024 which are anchored
+by Entrust root certificates.  This includes certificates branded as
+AffirmTrust, which are managed by Entrust.
+
+Certificates issued on or before November 11th, 2024 will continue to
+be trusted until they expire.
+
+If a server's certificate chain is anchored by an affected
+certificate, attempts to negotiate a TLS session will fail with an
+Exception that indicates the trust anchor is not trusted. For example,
+
+"TLS server certificate issued after 2024-11-11 and anchored by a
+distrusted legacy Entrust root CA: CN=Entrust.net Certification
+Authority (2048), OU=(c) 1999 Entrust.net Limited,
+OU=www.entrust.net/CPS_2048 incorp. by ref. (limits liab.),
+O=Entrust.net"
+
+To check whether a certificate in a JDK keystore is affected by this
+change, you can the `keytool` utility:
+
+keytool -v -list -alias <your_server_alias> -keystore <your_keystore_filename>
+
+If any of the certificates in the chain are affected by this change,
+then you will need to update the certificate or contact the
+organisation responsible for managing the certificate.
+
+These restrictions apply to the following Entrust root certificates
+included in the JDK:
+
+Alias name: entrustevca [jdk]
+CN=Entrust Root Certification Authority
+OU=(c) 2006 Entrust, Inc.
+OU=www.entrust.net/CPS is incorporated by reference
+O=Entrust, Inc.
+C=US
+SHA256: 73:C1:76:43:4F:1B:C6:D5:AD:F4:5B:0E:76:E7:27:28:7C:8D:E5:76:16:C1:E6:E6:14:1A:2B:2C:BC:7D:8E:4C
+
+Alias name: entrustrootcaec1 [jdk]
+CN=Entrust Root Certification Authority - EC1
+OU=(c) 2012 Entrust, Inc. - for authorized use only
+OU=See www.entrust.net/legal-terms
+O=Entrust, Inc.
+C=US
+SHA256: 02:ED:0E:B2:8C:14:DA:45:16:5C:56:67:91:70:0D:64:51:D7:FB:56:F0:B2:AB:1D:3B:8E:B0:70:E5:6E:DF:F5
+
+Alias name: entrustrootcag2 [jdk]
+CN=Entrust Root Certification Authority - G2
+OU=(c) 2009 Entrust, Inc. - for authorized use only
+OU=See www.entrust.net/legal-terms
+O=Entrust, Inc.
+C=US
+SHA256: 43:DF:57:74:B0:3E:7F:EF:5F:E4:0D:93:1A:7B:ED:F1:BB:2E:6B:42:73:8C:4E:6D:38:41:10:3D:3A:A7:F3:39
+
+Alias name: entrustrootcag4 [jdk]
+CN=Entrust Root Certification Authority - G4
+OU=(c) 2015 Entrust, Inc. - for authorized use only
+OU=See www.entrust.net/legal-terms
+O=Entrust, Inc.
+C=US
+SHA256: DB:35:17:D1:F6:73:2A:2D:5A:B9:7C:53:3E:C7:07:79:EE:32:70:A6:2F:B4:AC:42:38:37:24:60:E6:F0:1E:88
+
+Alias name: entrust2048ca [jdk]
+CN=Entrust.net Certification Authority (2048)
+OU=(c) 1999 Entrust.net Limited
+OU=www.entrust.net/CPS_2048 incorp. by ref. (limits liab.)
+O=Entrust.net
+SHA256: 6D:C4:71:72:E0:1C:BC:B0:BF:62:58:0D:89:5F:E2:B8:AC:9A:D4:F8:73:80:1E:0C:10:B9:C8:37:D2:1E:B1:77
+
+Alias name: affirmtrustcommercialca [jdk]
+CN=AffirmTrust Commercial
+O=AffirmTrust
+C=US
+SHA256: 03:76:AB:1D:54:C5:F9:80:3C:E4:B2:E2:01:A0:EE:7E:EF:7B:57:B6:36:E8:A9:3C:9B:8D:48:60:C9:6F:5F:A7
+
+Alias name: affirmtrustnetworkingca [jdk]
+CN=AffirmTrust Networking
+O=AffirmTrust
+C=US
+SHA256: 0A:81:EC:5A:92:97:77:F1:45:90:4A:F3:8D:5D:50:9F:66:B5:E2:C5:8F:CD:B5:31:05:8B:0E:17:F3:F0B4:1B
+
+Alias name: affirmtrustpremiumca [jdk]
+CN=AffirmTrust Premium
+O=AffirmTrust
+C=US
+SHA256: 70:A7:3F:7F:37:6B:60:07:42:48:90:45:34:B1:14:82:D5:BF:0E:69:8E:CC:49:8D:F5:25:77:EB:F2:E9:3B:9A
+
+Alias name: affirmtrustpremiumeccca [jdk]
+CN=AffirmTrust Premium ECC
+O=AffirmTrust
+C=US
+SHA256: BD:71:FD:F6:DA:97:E4:CF:62:D1:64:7A:DD:25:81:B0:7D:79:AD:F8:39:7E:B4:EC:BA:9C:5E:84:88:82:14:23
+
+Users can, *at their own risk*, remove this restriction by modifying
+the `java.security` configuration file (or override it by using the
+`java.security.properties` system property) so "ENTRUST_TLS" is no
+longer listed in the `jdk.security.caDistrustPolicies` security
+property.
+
+security-libs/java.security:
+
+JDK-8341057: Add 2 SSL.com TLS roots
+====================================
+The following root certificates have been added to the cacerts
+truststore:
+
+Name: SSL.com
+Alias Name: ssltlsrootecc2022
+Distinguished Name: CN=SSL.com TLS ECC Root CA 2022, O=SSL Corporation, C=US
+
+Name: SSL.com
+Alias Name: ssltlsrootrsa2022
+Distinguished Name: CN=SSL.com TLS RSA Root CA 2022, O=SSL Corporation, C=US
+
+client-libs:
+
+JDK-8307779: Relax the java.awt.Robot specification
+===================================================
+This release of OpenJDK 8 updates to the latest maintenance release of
+the Java 8 specification. This relaxes the specification of three
+methods in the `java.awt.Robot` class - `mouseMove(int,int)`,
+`getPixelColor(int,int)` and `createScreenCapture(Rectangle)` - to
+allow these methods to fail when the desktop environment does not
+permit moving the mouse pointer or capturing screen content.
+
+core-libs/javax.naming:
+
+JDK-8290367, JDK-8332643: Update default value and extend the scope of com.sun.jndi.ldap.object.trustSerialData system property
+===============================================================================================================================
+With this OpenJDK release, the JDK implementation of the LDAP provider
+no longer supports the deserialisation of Java objects by
+default. This is achieved by the system property
+`com.sun.jndi.ldap.object.trustSerialData` being set to `false` by
+default.
+
+Note that this release also increases the scope of the
+`com.sun.jndi.ldap.object.trustSerialData` to cover the reconstruction
+of RMI remote objects from the `javaRemoteLocation` LDAP attribute.
+
+The result of this change is that transparent deserialisation of Java
+objects will require an explicit opt-in. Applications that wish to
+reconstruct Java objects and RMI stubs from LDAP attributes will need
+to set the `com.sun.jndi.ldap.object.trustSerialData` to `true`.
+
+core-libs/java.net:
+
+JDK-8328286: Enhance HTTP client
+================================
+This OpenJDK release limits the maximum header field size accepted by
+the HTTP client within the JDK for all supported versions of the HTTP
+protocol. The header field size is computed as the sum of the size of
+the uncompressed header name, the size of the uncompressed header
+value and a overhead of 32 bytes for each field section line. If a
+peer sends a field section that exceeds this limit, a
+`java.net.ProtocolException` will be raised.
+
+This release also introduces a new system property,
+`jdk.http.maxHeaderSize`. This property can be used to alter the
+maximum header field size (in bytes) or disable it by setting the
+value to zero or a negative value. The default value is 393,216 bytes
+or 384kB.
+
+core-libs/java.util.jar:
+
+JDK-8193682: Infinite loop in ZipOutputStream.close()
+=====================================================
+In previous releases, the `DeflaterOutputStream.close()`,
+`GZIPOutputStream.finish()` and `ZipOutputStream.closeEntry()` methods
+did not close the associated default JDK compressor when an exception
+was thrown during closure.  With this release, the default compressor
+is closed before propogating the Throwable up the stack. In the case
+of `ZipOutputStream`, this only happens when the exception is not a
+`ZipException`.
+
+New in release OpenJDK 8u422 (2024-07-16):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u422
+
+* CVEs
+  - CVE-2024-21131
+  - CVE-2024-21138
+  - CVE-2024-21140
+  - CVE-2024-21144
+  - CVE-2024-21145
+  - CVE-2024-21147
+* Security fixes
+  - JDK-8314794: Improve UTF8 String supports
+  - JDK-8319859: Better symbol storage
+  - JDK-8320097: Improve Image transformations
+  - JDK-8320548: Improved loop handling
+  - JDK-8322106: Enhance Pack 200 loading
+  - JDK-8323231: Improve array management
+  - JDK-8323390: Enhance mask blit functionality
+  - JDK-8324559: Improve 2D image handling
+  - JDK-8325600: Better symbol storage
+* Other changes
+  - JDK-8025439: [TEST BUG] [macosx] PrintServiceLookup.lookupPrintServices doesn't work properly since jdk8b105
+  - JDK-8069389: CompilerOracle prefix wildcarding is broken for long strings
+  - JDK-8159454: [TEST_BUG] javax/swing/ToolTipManager/7123767/bug7123767.java: number of checked graphics configurations should be limited
+  - JDK-8159690: [TESTBUG] Mark headful tests with @key headful.
+  - JDK-8198321: javax/swing/JEditorPane/5076514/bug5076514.java fails
+  - JDK-8203691: [TESTBUG] Test /runtime/containers/cgroup/PlainRead.java fails
+  - JDK-8205407: [windows, vs<2017] C4800 after 8203197
+  - JDK-8235834: IBM-943 charset encoder needs updating
+  - JDK-8239965: XMLEncoder/Test4625418.java fails due to "Error: Cp943 - can't read properly"
+  - JDK-8240756: [macos] SwingSet2:TableDemo:Printed Japanese characters were garbled
+  - JDK-8256152: tests fail because of ambiguous method resolution
+  - JDK-8258855: Two tests sun/security/krb5/auto/ReplayCacheTestProc.java and ReplayCacheTestProcWithMD5.java failed on OL8.3
+  - JDK-8262017: C2: assert(n != __null) failed: Bad immediate dominator info.
+  - JDK-8268916: Tests for AffirmTrust roots
+  - JDK-8278067: Make HttpURLConnection default keep alive timeout configurable
+  - JDK-8291226: Create Test Cases to cover scenarios for JDK-8278067
+  - JDK-8291637: HttpClient default keep alive timeout not followed if server sends invalid value
+  - JDK-8291638: Keep-Alive timeout of 0 should close connection immediately
+  - JDK-8293562: KeepAliveCache Blocks Threads while Closing Connections
+  - JDK-8303466: C2: failed: malformed control flow. Limit type made precise with MaxL/MinL
+  - JDK-8304074: [JMX] Add an approximation of total bytes allocated on the Java heap by the JVM
+  - JDK-8313081: MonitoringSupport_lock should be unconditionally initialized after 8304074
+  - JDK-8315020: The macro definition for LoongArch64 zero build is not accurate.
+  - JDK-8316138: Add GlobalSign 2 TLS root certificates
+  - JDK-8318410: jdk/java/lang/instrument/BootClassPath/BootClassPathTest.sh fails on Japanese Windows
+  - JDK-8320005: Allow loading of shared objects with .a extension on AIX
+  - JDK-8324185: [8u] Accept Xcode 12+ builds on macOS
+  - JDK-8325096: Test java/security/cert/CertPathBuilder/akiExt/AKISerialNumber.java is failing
+  - JDK-8325927: [8u] Backport of JDK-8170552 missed part of the test
+  - JDK-8326686: Bump update version of OpenJDK: 8u422
+  - JDK-8327440: Fix "bad source file" error during beaninfo generation
+  - JDK-8328809: [8u] Problem list some CA tests
+  - JDK-8328825: Google CAInterop test failures
+  - JDK-8329544: [8u] sun/security/krb5/auto/ReplayCacheTestProc.java cannot find the testlibrary
+  - JDK-8331791: [8u] AIX build break from JDK-8320005 backport
+  - JDK-8331980: [8u] Problem list CAInterop.java#certignarootca test
+  - JDK-8335552: [8u] JDK-8303466 backport to 8u requires 3 ::Identity signature fixes
+
+Notes on individual issues:
+===========================
+
+core-libs/java.net:
+
+JDK-8278067: Make HttpURLConnection Default Keep Alive Timeout Configurable
+===========================================================================
+Two system properties have been added which control the keep alive
+behavior of HttpURLConnection in the case where the server does not
+specify a keep alive time. These are:
+
+* `http.keepAlive.time.server`
+* `http.keepAlive.time.proxy`
+
+which control the number of seconds before an idle connection to a
+server or proxy will be closed, respectively. If the server or proxy
+specifies a keep alive time in a "Keep-Alive" response header, this
+will take precedence over the values of these properties.
+
+security-libs/java.security:
+
+JDK-8316138: Add GlobalSign 2 TLS root certificates
+===================================================
+The following root certificates have been added to the cacerts
+truststore:
+
+Name: GlobalSign
+Alias Name: globalsignr46
+Distinguished Name: CN=GlobalSign Root R46, O=GlobalSign nv-sa, C=BE
+
+Name: GlobalSign
+Alias Name: globalsigne46
+Distinguished Name: CN=GlobalSign Root E46, O=GlobalSign nv-sa, C=BE
+
+New in release OpenJDK 8u412 (2024-04-16):
+===========================================
+Live versions of these release notes can be found at:
+  * https://bit.ly/openjdk8u412
+
+* CVEs
+  - CVE-2024-21011
+  - CVE-2024-21085
+  - CVE-2024-21068
+  - CVE-2024-21094
+* Security fixes
+  - JDK-8317507, JDK-8325348: C2 compilation fails with "Exceeded _node_regs array"
+  - JDK-8318340: Improve RSA key implementations
+  - JDK-8319851: Improve exception logging
+  - JDK-8322114: Improve Pack 200 handling
+  - JDK-8322122: Enhance generation of addresses
+* Other changes
+  - JDK-8011180: Delete obsolete scripts
+  - JDK-8016451: Scary messages emitted by build.tools.generatenimbus.PainterGenerator during build
+  - JDK-8021961: setAlwaysOnTop doesn't behave correctly in Linux/Solaris under certain scenarios
+  - JDK-8023735: [TESTBUG][macosx] runtime/XCheckJniJsig/XCheckJSig.java fails on MacOS X
+  - JDK-8074860: Structured Exception Catcher missing around CreateJavaVM on Windows
+  - JDK-8079441: Intermittent failures on Windows with "Unexpected exit from test [exit code: 1080890248]" (0x406d1388)
+  - JDK-8155590: Dubious collection management in sun.net.www.http.KeepAliveCache
+  - JDK-8168518: rcache interop with krb5-1.15
+  - JDK-8183503: Update hotspot tests to allow for unique test classes directory
+  - JDK-8186095: upgrade to jtreg 4.2 b08
+  - JDK-8186199: [windows] JNI_DestroyJavaVM not covered by SEH
+  - JDK-8192931: Regression test java/awt/font/TextLayout/CombiningPerf.java fails
+  - JDK-8208655: use JTreg skipped status in hotspot tests
+  - JDK-8208701: Fix for JDK-8208655 causes test failures in CI tier1
+  - JDK-8208706: compiler/tiered/ConstantGettersTransitionsTest.java fails to compile
+  - JDK-8213410: UseCompressedOops requirement check fails fails on 32-bit system
+  - JDK-8222323: ChildAlwaysOnTopTest.java fails with "RuntimeException: Failed to unset alwaysOnTop"
+  - JDK-8224768: Test ActalisCA.java fails
+  - JDK-8251155: HostIdentifier fails to canonicalize hostnames starting with digits
+  - JDK-8251551: Use .md filename extension for README
+  - JDK-8268678: LetsEncryptCA.java test fails as Let’s Encrypt Authority X3 is retired
+  - JDK-8270280: security/infra/java/security/cert/CertPathValidator/certification/LetsEncryptCA.java  OCSP response error
+  - JDK-8270517: Add Zero support for LoongArch
+  - JDK-8272708: [Test]: Cleanup: test/jdk/security/infra/java/security/cert/CertPathValidator/certification/BuypassCA.java no longer needs ocspEnabled
+  - JDK-8276139: TestJpsHostName.java not reliable, better to expand HostIdentifierCreate.java test
+  - JDK-8288132: Update test artifacts in QuoVadis CA interop tests
+  - JDK-8297955: LDAP CertStore should use LdapName and not String for DNs
+  - JDK-8301310: The SendRawSysexMessage test may cause a JVM crash
+  - JDK-8308592: Framework for CA interoperability testing
+  - JDK-8312126: NullPointerException in CertStore.getCRLs after 8297955
+  - JDK-8315042: NPE in PKCS7.parseOldSignedData
+  - JDK-8315757: [8u] Add cacerts JTREG tests to GHA tier1 test set
+  - JDK-8320713: Bump update version of OpenJDK: 8u412
+  - JDK-8321060: [8u] hotspot needs to recognise VS2022
+  - JDK-8321408: Add Certainly roots R1 and E1
+  - JDK-8322725: (tz) Update Timezone Data to 2023d
+  - JDK-8322750: Test "api/java_awt/interactive/SystemTrayTests.html" failed because A blue ball icon is added outside of the system tray
+  - JDK-8323202: [8u] Remove get_source.sh and hgforest.sh
+  - JDK-8323640: [TESTBUG]testMemoryFailCount in jdk/internal/platform/docker/TestDockerMemoryMetrics.java always fail because OOM killed
+  - JDK-8324184: Windows VS2010 build failed with "error C2275: 'int64_t'"
+  - JDK-8324530: Build error with gcc 10
+  - JDK-8325150: (tz) Update Timezone Data to 2024a
+
+Notes on individual issues:
+===========================
+
+security-libs/org.ietf.jgss:krb5:
+
+JDK-8168518: rcache interop with krb5-1.15
+==========================================
+The hash algorithm used in the Kerberos 5 replay cache file (rcache)
+has been changed from MD5 to SHA256. This is the same algorithm used
+by MIT krb5-1.15 and is interoperable with earlier releases of MIT
+krb5.
+
+The MD5 algorithm can still be used by setting the new
+jdk.krb5.rcache.useMD5 property to 'true':
+
+java -Djdk.krb5.rcache.useMD5=true ...
+
+This is useful where either the system has a coarse clock and has to
+depend on hash values in replay attack detection, or interoperability
+with the rcache files in older versions of OpenJDK is required.
+
+client-libs/java.awt:
+
+JDK-8322750: AWT SystemTray API Is Not Supported on Most Linux Desktops
+=======================================================================
+The java.awt.SystemTray API is used to interact with the system's
+desktop taskbar to provide notifications and may include an icon
+representing an application. The GNOME desktop's support for taskbar
+icons has not worked properly for several years, due to a platform
+bug. This bug, in turn, affects the JDK's SystemTray support on GNOME
+desktops.
+
+Therefore, in accordance with the SystemTray API specification,
+java.awt.SystemTray.isSupported() will now return false on systems
+that exhibit this bug, which is assumed to be those running a version
+of GNOME Shell below 45.
+
+The impact of this change is likely to be minimal, as users of the
+SystemTray API should already be able to handle isSupported()
+returning false and the system tray on such platforms has already been
+unsupported for a number of years for all applications.
+
+security-libs/java.security:
+
+JDK-8321408: Added Certainly R1 and E1 Root Certificates
+========================================================
+The following root certificate has been added to the cacerts
+truststore:
+
+Name: Certainly
+Alias Name: certainlyrootr1
+Distinguished Name: CN=Certainly Root R1, O=Certainly, C=US
+
+Name: Certainly
+Alias Name: certainlyroote1
+Distinguished Name: CN=Certainly Root E1, O=Certainly, C=US
+
 New in release OpenJDK 8u402 (2024-01-16):
 ===========================================
 Live versions of these release notes can be found at:
